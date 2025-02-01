@@ -1,0 +1,14 @@
+# Hardhat
+artifacts/
+cache/
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# Env
+.env
+
+# OS
+.DS_Store
