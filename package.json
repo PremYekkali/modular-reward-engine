@@ -1,0 +1,14 @@
+{
+  "name": "modular-reward-engine",
+  "version": "0.1.0",
+  "description": "A modular and extensible reward distribution system for onchain protocols",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "lint": "echo \"linting not configured\""
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  }
+}
