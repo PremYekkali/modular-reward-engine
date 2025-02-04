@@ -5,36 +5,101 @@ import "./RewardTypes.sol";
 import "./RewardErrors.sol";
 
 /// @title RewardManager
-/// @notice Core contract responsible for reward accounting and distribution
+/// @notice Generic reward accounting engine that reacts to share updates
+/// @dev This contract does not own stake or custody assets
 contract RewardManager {
-    uint256 public totalStaked;
+    uint256 internal constant PRECISION = 1e18;
 
-    mapping(address => uint256) public balanceOf;
+    /// @notice Total active shares reported to the reward engine
+    uint256 public totalShares;
 
-    RewardData internal rewardData;
+    /// @notice Last known shares per user
+    mapping(address => uint256) public userShares;
 
+    /// @notice Reward debt per user
     mapping(address => uint256) internal userRewardDebt;
 
-        uint256 internal constant PRECISION = 1e18;
+    /// @notice Global reward accounting data
+    RewardData internal rewardData;
+
+    /// @notice Address allowed to report share updates
+    address public immutable reporter;
+
+    constructor(address _reporter) {
+        if (_reporter == address(0)) {
+            revert Unauthorized();
+        }
+        reporter = _reporter;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        REWARD ACCOUNTING
+    //////////////////////////////////////////////////////////////*/
 
     function _updateRewards(uint256 rewardAmount) internal {
-        if (totalStaked == 0) {
+        if (totalShares == 0) {
+            rewardData.lastUpdateTime = block.timestamp;
             return;
         }
 
         rewardData.accRewardPerShare +=
-            (rewardAmount * PRECISION) / totalStaked;
+            (rewardAmount * PRECISION) / totalShares;
 
         rewardData.totalDistributed += rewardAmount;
         rewardData.lastUpdateTime = block.timestamp;
     }
 
-    function _pendingReward(address user) internal view returns (uint256) {
+    function pendingReward(address user) public view returns (uint256) {
         uint256 accumulated =
-            (balanceOf[user] * rewardData.accRewardPerShare) / PRECISION;
+            (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
 
         return accumulated - userRewardDebt[user];
     }
 
-}
+    /*//////////////////////////////////////////////////////////////
+                        SHARE UPDATE HOOK
+    //////////////////////////////////////////////////////////////*/
 
+    /// @notice Called by an external staking or vault contract
+    /// @param user The user whose shares changed
+    /// @param previousShares Shares before the update
+    /// @param newShares Shares after the update
+    function onSharesUpdated(
+        address user,
+        uint256 previousShares,
+        uint256 newShares
+    ) external {
+        if (msg.sender != reporter) {
+            revert Unauthorized();
+        }
+
+        uint256 pending = pendingReward(user);
+
+        totalShares = totalShares - previousShares + newShares;
+        userShares[user] = newShares;
+
+        userRewardDebt[user] =
+            (newShares * rewardData.accRewardPerShare) / PRECISION;
+
+        if (pending > 0) {
+            // reward transfer will be added later
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                            CLAIMING
+    //////////////////////////////////////////////////////////////*/
+
+    function claim(address user) external {
+        uint256 reward = pendingReward(user);
+
+        if (reward == 0) {
+            revert NoRewardsAvailable();
+        }
+
+        userRewardDebt[user] =
+            (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
+
+        // reward transfer will be added later
+    }
+}
