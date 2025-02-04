@@ -14,4 +14,27 @@ contract RewardManager {
     RewardData internal rewardData;
 
     mapping(address => uint256) internal userRewardDebt;
+
+        uint256 internal constant PRECISION = 1e18;
+
+    function _updateRewards(uint256 rewardAmount) internal {
+        if (totalStaked == 0) {
+            return;
+        }
+
+        rewardData.accRewardPerShare +=
+            (rewardAmount * PRECISION) / totalStaked;
+
+        rewardData.totalDistributed += rewardAmount;
+        rewardData.lastUpdateTime = block.timestamp;
+    }
+
+    function _pendingReward(address user) internal view returns (uint256) {
+        uint256 accumulated =
+            (balanceOf[user] * rewardData.accRewardPerShare) / PRECISION;
+
+        return accumulated - userRewardDebt[user];
+    }
+
 }
+
