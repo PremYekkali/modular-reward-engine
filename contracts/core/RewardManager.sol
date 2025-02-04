@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "./RewardTypes.sol";
+import "./RewardErrors.sol";
+
 /// @title RewardManager
 /// @notice Core contract responsible for reward accounting and distribution
-/// @dev The implementation is intentionally minimal and extended incrementally
 contract RewardManager {
-    /*//////////////////////////////////////////////////////////////
-                                TODO
-    //////////////////////////////////////////////////////////////*/
+    uint256 public totalStaked;
 
-    // Stake tracking
-    // Reward accrual accounting
-    // Claim logic
-    // Distribution strategy integration
+    mapping(address => uint256) public balanceOf;
+
+    RewardData internal rewardData;
+
+    mapping(address => uint256) internal userRewardDebt;
 }
