@@ -61,6 +61,14 @@ contract RewardManager {
         return accumulated - userRewardDebt[user];
     }
 
+    function _payout(address user, uint256 amount) internal {
+        bool success = rewardToken.transfer(user, amount);
+        if (!success) {
+            revert Unauthorized();
+        }
+    }
+
+
     /*//////////////////////////////////////////////////////////////
                         SHARE UPDATE HOOK
     //////////////////////////////////////////////////////////////*/
@@ -87,7 +95,7 @@ contract RewardManager {
             (newShares * rewardData.accRewardPerShare) / PRECISION;
 
         if (pending > 0) {
-            // reward transfer will be added later
+            _payout(user, pending);
         }
     }
 
@@ -105,6 +113,6 @@ contract RewardManager {
         userRewardDebt[user] =
             (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
 
-        // reward transfer will be added later
+        _payout(user, reward);
     }
 }
