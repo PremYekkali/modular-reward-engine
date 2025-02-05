@@ -6,8 +6,8 @@ import "./RewardErrors.sol";
 import "./RewardToken.sol";
 
 /// @title RewardManager
-/// @notice Generic reward accounting engine that reacts to share updates
-/// @dev This contract does not own stake or custody assets
+/// @notice Generic reward accounting engine
+/// @dev Tracks reward accrual based on externally reported share changes
 contract RewardManager {
     uint256 internal constant PRECISION = 1e18;
 
