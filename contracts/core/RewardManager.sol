@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "./RewardTypes.sol";
 import "./RewardErrors.sol";
+import "./RewardToken.sol";
 
 /// @title RewardManager
 /// @notice Generic reward accounting engine that reacts to share updates
@@ -25,12 +26,16 @@ contract RewardManager {
     /// @notice Address allowed to report share updates
     address public immutable reporter;
 
-    constructor(address _reporter) {
-        if (_reporter == address(0)) {
+    IERC20Minimal public immutable rewardToken;
+
+    constructor(address _reporter, address _rewardToken) {
+        if (_reporter == address(0) || _rewardToken == address(0)) {
             revert Unauthorized();
         }
         reporter = _reporter;
+        rewardToken = IERC20Minimal(_rewardToken);
     }
+
 
     /*//////////////////////////////////////////////////////////////
                         REWARD ACCOUNTING
