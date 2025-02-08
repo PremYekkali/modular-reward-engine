@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "./RewardTypes.sol";
 import "./RewardErrors.sol";
 import "./RewardToken.sol";
+import "../interfaces/IRewardStrategy.sol";
 
 /// @title RewardManager
 /// @notice Generic reward accounting engine
@@ -26,6 +27,7 @@ contract RewardManager {
     /// @notice Address allowed to report share updates
     address public immutable reporter;
 
+    IRewardStrategy public strategy;
     IERC20Minimal public immutable rewardToken;
 
     constructor(address _reporter, address _rewardToken) {
@@ -41,18 +43,28 @@ contract RewardManager {
                         REWARD ACCOUNTING
     //////////////////////////////////////////////////////////////*/
 
-    function _updateRewards(uint256 rewardAmount) internal {
-        if (totalShares == 0) {
+    function _updateRewards() internal {
+        if (address(strategy) == address(0)) {
+            return;
+        }
+
+        uint256 reward = strategy.rewardAmount(
+            rewardData.lastUpdateTime,
+            block.timestamp
+        );
+
+        if (reward == 0 || totalShares == 0) {
             rewardData.lastUpdateTime = block.timestamp;
             return;
         }
 
         rewardData.accRewardPerShare +=
-            (rewardAmount * PRECISION) / totalShares;
+            (reward * PRECISION) / totalShares;
 
-        rewardData.totalDistributed += rewardAmount;
+        rewardData.totalDistributed += reward;
         rewardData.lastUpdateTime = block.timestamp;
     }
+
 
     function pendingReward(address user) public view returns (uint256) {
         uint256 accumulated =
@@ -85,6 +97,7 @@ contract RewardManager {
         if (msg.sender != reporter) {
             revert Unauthorized();
         }
+        _updateRewards();
 
         uint256 pending = pendingReward(user);
 
@@ -104,6 +117,7 @@ contract RewardManager {
     //////////////////////////////////////////////////////////////*/
 
     function claim(address user) external {
+        _updateRewards();
         uint256 reward = pendingReward(user);
 
         if (reward == 0) {
