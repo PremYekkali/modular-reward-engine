@@ -69,6 +69,18 @@ contract RewardManager {
         }
     }
 
+    function notifyReward(uint256 amount) external {
+        if (msg.sender != reporter) {
+            revert Unauthorized();
+        }
+        if (amount == 0) {
+            revert ZeroAmount();
+        }
+
+        _updateRewards(amount);
+    }
+
+
 
     /*//////////////////////////////////////////////////////////////
                         SHARE UPDATE HOOK
@@ -86,7 +98,6 @@ contract RewardManager {
         if (msg.sender != reporter) {
             revert Unauthorized();
         }
-        _updateRewards();
 
         uint256 pending = pendingReward(user);
 
@@ -106,7 +117,6 @@ contract RewardManager {
     //////////////////////////////////////////////////////////////*/
 
     function claim(address user) external {
-        _updateRewards();
         uint256 reward = pendingReward(user);
 
         if (reward == 0) {
