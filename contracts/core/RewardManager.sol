@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "./RewardTypes.sol";
 import "./RewardErrors.sol";
 import "./RewardToken.sol";
-import "../interfaces/IRewardStrategy.sol";
 
 /// @title RewardManager
 /// @notice Generic reward accounting engine
@@ -27,7 +26,6 @@ contract RewardManager {
     /// @notice Address allowed to report share updates
     address public immutable reporter;
 
-    IRewardStrategy public strategy;
     IERC20Minimal public immutable rewardToken;
 
     constructor(address _reporter, address _rewardToken) {
@@ -43,25 +41,16 @@ contract RewardManager {
                         REWARD ACCOUNTING
     //////////////////////////////////////////////////////////////*/
 
-    function _updateRewards() internal {
-        if (address(strategy) == address(0)) {
-            return;
-        }
-
-        uint256 reward = strategy.rewardAmount(
-            rewardData.lastUpdateTime,
-            block.timestamp
-        );
-
-        if (reward == 0 || totalShares == 0) {
+    function _updateRewards(uint256 rewardAmount) internal {
+        if (rewardAmount == 0 || totalShares == 0) {
             rewardData.lastUpdateTime = block.timestamp;
             return;
         }
 
         rewardData.accRewardPerShare +=
-            (reward * PRECISION) / totalShares;
+            (rewardAmount * PRECISION) / totalShares;
 
-        rewardData.totalDistributed += reward;
+        rewardData.totalDistributed += rewardAmount;
         rewardData.lastUpdateTime = block.timestamp;
     }
 
