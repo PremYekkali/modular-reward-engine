@@ -28,6 +28,10 @@ contract RewardManager {
 
     IERC20Minimal public immutable rewardToken;
 
+    event RewardNotified(uint256 amount);
+    event SharesUpdated(address indexed user, uint256 previousShares, uint256 newShares);
+    event RewardClaimed(address indexed user, uint256 amount);
+
     constructor(address _reporter, address _rewardToken) {
         if (_reporter == address(0) || _rewardToken == address(0)) {
             revert Unauthorized();
@@ -81,7 +85,13 @@ contract RewardManager {
             revert ZeroAmount();
         }
 
+        uint256 balance = rewardToken.balanceOf(address(this));
+        if (balance < amount) {
+            revert Unauthorized();
+        }
+
         _updateRewards(amount);
+        emit RewardNotified(amount);
     }
 
 
@@ -114,6 +124,8 @@ contract RewardManager {
         if (pending > 0) {
             _payout(user, pending);
         }
+
+        emit SharesUpdated(user, previousShares, newShares);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -131,5 +143,6 @@ contract RewardManager {
             (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
 
         _payout(user, reward);
+        emit RewardClaimed(user, reward);
     }
 }
