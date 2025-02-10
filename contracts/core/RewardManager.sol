@@ -86,7 +86,7 @@ contract RewardManager {
                         SHARE UPDATE HOOK
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Called by an external staking or vault contract
+    /// @notice Called by an external system reporting share changes
     /// @param user The user whose shares changed
     /// @param previousShares Shares before the update
     /// @param newShares Shares after the update
