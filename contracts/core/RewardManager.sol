@@ -59,7 +59,11 @@ contract RewardManager {
         uint256 accumulated =
             (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
 
+        if (accumulated < userRewardDebt[user]) {
+            return 0;
+        }
         return accumulated - userRewardDebt[user];
+
     }
 
     function _payout(address user, uint256 amount) internal {
