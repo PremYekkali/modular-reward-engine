@@ -5,10 +5,12 @@
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
+    "coverage": "hardhat coverage",
     "lint": "echo \"linting not configured\""
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.0"
+    "hardhat": "^2.22.0",
+    "solidity-coverage": "^0.8.10"
   }
 }
