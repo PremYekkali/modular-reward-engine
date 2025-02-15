@@ -1,6 +1,8 @@
 # Hardhat
 artifacts/
 cache/
+coverage
+coverage.json
 
 # Node
 node_modules/
