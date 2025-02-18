@@ -26,7 +26,6 @@ describe("RewardManager edge cases", function () {
             rewardManager.claim(user.address)
         ).to.be.reverted;
     });
-
     it("pays pending rewards before share decrease", async function () {
         const { reporter, user, token, rewardManager } =
             await deployRewardSystem();
@@ -57,8 +56,6 @@ describe("RewardManager edge cases", function () {
             rewardManager.connect(user).claim(user.address)
         ).to.be.reverted;
     });
-
-
     it("reverts when notified reward exceeds available balance", async function () {
         const { reporter, rewardManager } = await deployRewardSystem();
 
@@ -77,7 +74,6 @@ describe("RewardManager edge cases", function () {
                 .onSharesUpdated(user.address, 0, 10)
         ).to.be.reverted;
     });
-
     it("reverts when reporter address is zero", async function () {
         const { ethers } = require("hardhat");
 
@@ -93,7 +89,6 @@ describe("RewardManager edge cases", function () {
             )
         ).to.be.reverted;
     });
-
     it("reverts when reward token address is zero", async function () {
         const { ethers } = require("hardhat");
         const [ , reporter ] = await ethers.getSigners();
@@ -107,7 +102,6 @@ describe("RewardManager edge cases", function () {
             )
         ).to.be.reverted;
     });
-
     it("emits RewardClaimed event on claim", async function () {
         const { reporter, user, token, rewardManager } =
             await deployRewardSystem();
@@ -129,7 +123,6 @@ describe("RewardManager edge cases", function () {
             rewardManager.connect(user).claim(user.address)
         ).to.emit(rewardManager, "RewardClaimed");
     });
-
     it("handles reward notification when no shares exist", async function () {
         const { reporter, token, rewardManager } =
             await deployRewardSystem();
@@ -148,7 +141,51 @@ describe("RewardManager edge cases", function () {
         const totalShares = await rewardManager.totalShares();
         expect(totalShares).to.equal(0);
     });
+    it("returns zero pending reward when debt exceeds accumulation", async function () {
+        const { reporter, user, rewardManager } =
+            await deployRewardSystem();
 
+        // initial shares
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 0, 100);
+
+        // reduce shares without rewards
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 100, 10);
+
+        const pending = await rewardManager.pendingReward(user.address);
+        expect(pending).to.equal(0);
+    });
+    it("reverts when reward token transfer fails during payout", async function () {
+        const { ethers } = require("hardhat");
+        const [ , reporter, user ] = await ethers.getSigners();
+
+        const Token = await ethers.getContractFactory("FailingERC20");
+        const token = await Token.deploy();
+
+        const RewardManager = await ethers.getContractFactory("RewardManager");
+        const rewardManager = await RewardManager.deploy(
+            reporter.address,
+            token.target
+        );
+
+        // report shares so rewards can accrue
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 0, 100);
+
+        // notify reward (accounting only)
+        await rewardManager
+            .connect(reporter)
+            .notifyReward(1);
+
+        // payout happens here -> transfer returns false -> revert
+        await expect(
+            rewardManager.connect(user).claim(user.address)
+        ).to.be.reverted;
+    });
 
 
 });
