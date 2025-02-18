@@ -130,5 +130,25 @@ describe("RewardManager edge cases", function () {
         ).to.emit(rewardManager, "RewardClaimed");
     });
 
+    it("handles reward notification when no shares exist", async function () {
+        const { reporter, token, rewardManager } =
+            await deployRewardSystem();
+
+        await token.mint(
+            rewardManager.target,
+            ethers.parseEther("10")
+        );
+
+        // notify reward with zero shares
+        await rewardManager
+            .connect(reporter)
+            .notifyReward(ethers.parseEther("5"));
+
+        // no revert and no state corruption
+        const totalShares = await rewardManager.totalShares();
+        expect(totalShares).to.equal(0);
+    });
+
+
 
 });
