@@ -77,6 +77,37 @@ describe("RewardManager edge cases", function () {
                 .onSharesUpdated(user.address, 0, 10)
         ).to.be.reverted;
     });
+
+    it("reverts when reporter address is zero", async function () {
+        const { ethers } = require("hardhat");
+
+        const Token = await ethers.getContractFactory("MockERC20");
+        const token = await Token.deploy();
+
+        const RewardManager = await ethers.getContractFactory("RewardManager");
+
+        await expect(
+            RewardManager.deploy(
+                ethers.ZeroAddress,
+                token.target
+            )
+        ).to.be.reverted;
+    });
+
+    it("reverts when reward token address is zero", async function () {
+        const { ethers } = require("hardhat");
+        const [ , reporter ] = await ethers.getSigners();
+
+        const RewardManager = await ethers.getContractFactory("RewardManager");
+
+        await expect(
+            RewardManager.deploy(
+                reporter.address,
+                ethers.ZeroAddress
+            )
+        ).to.be.reverted;
+    });
+
     it("emits RewardClaimed event on claim", async function () {
         const { reporter, user, token, rewardManager } =
             await deployRewardSystem();
