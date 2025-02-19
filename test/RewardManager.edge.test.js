@@ -56,6 +56,56 @@ describe("RewardManager edge cases", function () {
             rewardManager.connect(user).claim(user.address)
         ).to.be.reverted;
     });
+    it("returns zero when reward debt is higher than accumulated rewards (corrupted state)", async function () {
+        const { reporter, user, rewardManager } =
+            await deployRewardSystem();
+
+        // normal share update
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 0, 100);
+
+        // sanity check: no rewards yet
+        const initialPending = await rewardManager.pendingReward(user.address);
+        expect(initialPending).to.equal(0);
+
+        // ---- force corrupted state ----
+        // userRewardDebt mapping slot calculation:
+        // keccak256(abi.encode(user, slot))
+        //
+        // slot order in RewardManager:
+        // userRewardDebt is after:
+        // - PRECISION (constant, no slot)
+        // - totalShares (slot 0)
+        // - userShares (slot 1)
+        // => userRewardDebt mapping is slot 2
+
+        const debtSlot = ethers.keccak256(
+            ethers.AbiCoder.defaultAbiCoder().encode(
+                ["address", "uint256"],
+                [user.address, 2]
+            )
+        );
+
+        // write an impossible high debt
+        const corruptedDebt = ethers.parseEther("1000");
+
+        await ethers.provider.send(
+            "hardhat_setStorageAt",
+            [
+                rewardManager.target,
+                debtSlot,
+                ethers.zeroPadValue(
+                    ethers.toBeHex(corruptedDebt),
+                    32
+                )
+            ]
+        );
+        // now accumulated < debt must be true
+        const pending = await rewardManager.pendingReward(user.address);
+        expect(pending).to.equal(0);
+    });
+
     it("reverts when notified reward exceeds available balance", async function () {
         const { reporter, rewardManager } = await deployRewardSystem();
 
