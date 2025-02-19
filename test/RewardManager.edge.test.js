@@ -236,6 +236,51 @@ describe("RewardManager edge cases", function () {
             rewardManager.connect(user).claim(user.address)
         ).to.be.reverted;
     });
+    it("updates reward state when no new rewards are added and shares exist", async function () {
+        const { reporter, user, rewardManager } =
+            await deployRewardSystem();
+
+        // establish non zero shares
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 0, 100);
+
+        // call share update again with same shares
+        // this triggers _updateRewards with rewardAmount == 0
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 100, 100);
+
+        // ensure no revert and shares remain correct
+        const shares = await rewardManager.userShares(user.address);
+        expect(shares).to.equal(100);
+    });
+    it("covers zero reward update branch via harness", async function () {
+        const { ethers } = require("hardhat");
+        const [ , reporter, user ] = await ethers.getSigners();
+
+        const Token = await ethers.getContractFactory("MockERC20");
+        const token = await Token.deploy();
+
+        const Harness = await ethers.getContractFactory("RewardManagerHarness");
+        const rewardManager = await Harness.deploy(
+            reporter.address,
+            token.target
+        );
+
+        // create non zero shares
+        await rewardManager
+            .connect(reporter)
+            .onSharesUpdated(user.address, 0, 100);
+
+        // DIRECTLY hit rewardAmount == 0
+        await rewardManager.exposedUpdateRewards(0);
+
+        // sanity: shares unchanged
+        const shares = await rewardManager.userShares(user.address);
+        expect(shares).to.equal(100);
+    });
+
 
 
 });
