@@ -43,7 +43,14 @@ contract RewardManager {
     /// @notice Global reward accounting data
     RewardData internal rewardData;
 
-    /// @notice Address allowed to report share updates
+    /// @notice Address authorized to report share changes and new rewards
+    /// @dev
+    /// The reporter is a trusted external system responsible for:
+    /// - Reporting accurate share balances
+    /// - Notifying newly funded rewards
+    ///
+    /// Incorrect or malicious reporting can affect reward distribution,
+    /// so this role must be carefully controlled by the integrator.
     address public immutable reporter;
 
     IERC20Minimal public immutable rewardToken;
@@ -120,10 +127,13 @@ contract RewardManager {
                         SHARE UPDATE HOOK
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Called by an external system reporting share changes
-    /// @param user The user whose shares changed
-    /// @param previousShares Shares before the update
-    /// @param newShares Shares after the update
+    /// @notice Reports a change in user shares to the reward engine
+    /// @dev
+    /// This function is expected to be called by a trusted external system
+    /// whenever a user's share balance changes.
+    ///
+    /// Pending rewards are settled using the previous share balance
+    /// before the new share amount is applied.
     function onSharesUpdated(
         address user,
         uint256 previousShares,
