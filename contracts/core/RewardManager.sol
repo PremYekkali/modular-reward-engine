@@ -6,8 +6,23 @@ import "./RewardErrors.sol";
 import "./RewardToken.sol";
 
 /// @title RewardManager
-/// @notice Generic reward accounting engine
-/// @dev Tracks reward accrual based on externally reported share changes
+/// @notice Generic reward accounting and distribution engine
+/// @dev
+/// The RewardManager is a pure reward layer. It does not calculate user shares,
+/// mint reward tokens, or manage user funds.
+///
+/// Core responsibilities:
+/// - Track reward accrual proportionally to externally reported shares
+/// - Distribute funded reward tokens to users
+/// - Maintain per user reward accounting correctness
+///
+/// External assumptions:
+/// - An external system is responsible for calculating and reporting user shares
+/// - Reward tokens are funded separately and explicitly
+/// - A trusted reporter notifies share changes and new rewards
+///
+/// This contract is intentionally minimal and opinionated to keep reward logic
+/// reusable, auditable, and decoupled from protocol specific state.
 contract RewardManager {
     uint256 internal constant PRECISION = 1e18;
 
