@@ -29,10 +29,15 @@ contract RewardManager {
     /// @notice Total active shares reported to the reward engine
     uint256 public totalShares;
 
-    /// @notice Last known shares per user
+    /// @notice Last known share balance per user
+    /// @dev Shares are reported externally and are not derived inside this contract
     mapping(address => uint256) public userShares;
 
-    /// @notice Reward debt per user
+    /// @notice Reward debt per user used for accounting correctness
+    /// @dev
+    /// rewardDebt tracks the portion of accRewardPerShare already accounted
+    /// for a user. Pending rewards are calculated as:
+    /// (userShares * accRewardPerShare) - rewardDebt
     mapping(address => uint256) internal userRewardDebt;
 
     /// @notice Global reward accounting data
