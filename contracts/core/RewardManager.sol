@@ -72,6 +72,14 @@ contract RewardManager {
                         REWARD ACCOUNTING
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Updates global reward accounting state
+    /// @dev
+    /// Updates accRewardPerShare based on the newly notified reward amount
+    /// and the current total shares.
+    ///
+    /// If no shares exist, the reward is accounted but not distributed.
+    /// This function does not perform token transfers.
+    /// @param rewardAmount Amount of reward tokens to account for distribution
     function _updateRewards(uint256 rewardAmount) internal {
         if (rewardAmount == 0 || totalShares == 0) {
             rewardData.lastUpdateTime = block.timestamp;
@@ -104,6 +112,15 @@ contract RewardManager {
         }
     }
 
+    /// @notice Notifies the reward engine of newly funded rewards
+    /// @dev
+    /// This function updates global reward accounting using the provided
+    /// reward amount. Reward tokens must already be transferred to this
+    /// contract before calling.
+    ///
+    /// Calling this function does not distribute rewards immediately.
+    /// Distribution occurs when users claim or when shares are updated.
+    /// @param amount Amount of reward tokens to account for distribution
     function notifyReward(uint256 amount) external {
         if (msg.sender != reporter) {
             revert Unauthorized();
