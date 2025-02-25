@@ -146,11 +146,19 @@ contract RewardManager {
 
     /// @notice Reports a change in user shares to the reward engine
     /// @dev
-    /// This function is expected to be called by a trusted external system
-    /// whenever a user's share balance changes.
+    /// This function settles any pending rewards using the user's previous
+    /// share balance before applying the new share amount.
     ///
-    /// Pending rewards are settled using the previous share balance
-    /// before the new share amount is applied.
+    /// The expected call order is:
+    /// 1. Update reward accounting
+    /// 2. Calculate pending rewards using previous shares
+    /// 3. Apply new share balance
+    /// 4. Update reward debt
+    ///
+    /// This ordering ensures reward correctness across share changes.
+    /// @param user Address of the user whose shares changed
+    /// @param previousShares User share balance before the update
+    /// @param newShares User share balance after the update
     function onSharesUpdated(
         address user,
         uint256 previousShares,
