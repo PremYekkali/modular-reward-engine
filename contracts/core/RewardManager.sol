@@ -105,6 +105,14 @@ contract RewardManager {
 
     }
 
+    /// @notice Transfers reward tokens to a user
+    /// @dev
+    /// Assumes reward accounting has already been updated and validated.
+    /// This is the only function responsible for moving reward tokens
+    /// out of the contract.
+    /// Reverts if the token transfer fails.
+    /// @param user Address receiving the reward tokens
+    /// @param amount Amount of reward tokens to transfer
     function _payout(address user, uint256 amount) internal {
         bool success = rewardToken.transfer(user, amount);
         if (!success) {
@@ -187,6 +195,12 @@ contract RewardManager {
                             CLAIMING
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Claims all accrued rewards for a user
+    /// @dev
+    /// Reverts if no rewards are available to claim.
+    /// Updates user reward debt before performing the token transfer
+    /// to maintain accounting correctness.
+    /// @param user Address of the user claiming rewards
     function claim(address user) external {
         uint256 reward = pendingReward(user);
 
