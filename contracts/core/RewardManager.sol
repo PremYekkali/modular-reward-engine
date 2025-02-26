@@ -105,11 +105,20 @@ contract RewardManager {
         rewardData.lastUpdateTime = block.timestamp;
     }
 
-
+    /// @notice Returns the pending reward amount for a user
+    /// @dev
+    /// This function includes defensive checks to guard against
+    /// inconsistent or corrupted accounting state.
+    /// Under normal operation, accumulated rewards are always
+    /// greater than or equal to recorded reward debt.
+    /// @param user Address of the user to query pending rewards for
+    /// @return Amount of reward tokens claimable by the user
     function pendingReward(address user) public view returns (uint256) {
         uint256 accumulated =
             (userShares[user] * rewardData.accRewardPerShare) / PRECISION;
 
+        // Defensive check: this branch is unreachable under valid state
+        // transitions but protects against corrupted accounting state.
         if (accumulated < userRewardDebt[user]) {
             return 0;
         }
