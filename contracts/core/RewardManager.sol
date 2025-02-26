@@ -55,9 +55,21 @@ contract RewardManager {
 
     IERC20Minimal public immutable rewardToken;
 
+    /// @notice Emitted when new rewards are notified to the engine
+    /// @param amount Amount of reward tokens accounted for distribution
     event RewardNotified(uint256 amount);
+
+    /// @notice Emitted when a user's share balance is updated
+    /// @param user Address whose shares changed
+    /// @param previousShares Share balance before the update
+    /// @param newShares Share balance after the update
     event SharesUpdated(address indexed user, uint256 previousShares, uint256 newShares);
+
+    /// @notice Emitted when a user successfully claims rewards
+    /// @param user Address receiving the reward tokens
+    /// @param amount Amount of reward tokens transferred
     event RewardClaimed(address indexed user, uint256 amount);
+
 
     constructor(address _reporter, address _rewardToken) {
         if (_reporter == address(0) || _rewardToken == address(0)) {
