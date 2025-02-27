@@ -46,11 +46,63 @@ This repository intentionally does **not** include:
 These concerns are expected to be handled by integrating protocols.
 
 
-## Reward Flow
+---
 
-1. An external system reports share changes using `onSharesUpdated`
-2. Rewards are funded by transferring tokens to the RewardManager
-3. The reporter notifies new rewards using `notifyReward`
-4. Users claim accrued rewards using `claim`
+## Reward Flow Overview
 
-The RewardManager does not calculate shares and does not mint tokens.
+The reward engine operates using an explicit, event driven model.
+
+### 1. Share Reporting
+
+An external system is responsible for calculating user shares.
+Whenever a user’s share balance changes, the system calls:
+
+```
+
+onSharesUpdated(user, previousShares, newShares)
+
+```
+
+This allows the reward engine to:
+- Settle pending rewards using the old share balance
+- Apply the new share balance
+- Maintain correct reward accounting
+
+---
+
+### 2. Reward Funding and Notification
+
+Reward tokens must be transferred to the RewardManager contract
+before they can be distributed.
+
+Once funded, the external system notifies the engine by calling:
+
+```
+
+notifyReward(amount)
+
+```
+
+This updates global reward accounting but does not immediately
+transfer tokens to users.
+
+---
+
+### 3. Reward Claiming
+
+Users may claim accrued rewards at any time by calling:
+
+```
+
+claim(user)
+
+```
+
+Rewards may also be paid automatically during share updates
+if pending rewards exist.
+
+---
+
+This separation between share reporting, reward funding, and
+reward claiming keeps the reward logic simple and reusable.
+```
