@@ -105,4 +105,38 @@ if pending rewards exist.
 
 This separation between share reporting, reward funding, and
 reward claiming keeps the reward logic simple and reusable.
+
+---
+
+## Design Decisions
+
+### Explicit Reward Notification
+
+Rewards are accounted only when explicitly notified. This avoids
+implicit assumptions about emission schedules and keeps reward
+funding transparent.
+
+---
+
+### External Share Reporting
+
+The reward engine does not calculate shares. This allows it to be
+used with staking systems, vaults, liquidity pools, or any other
+mechanism that can represent user ownership as shares.
+
+---
+
+### Settlement on Share Updates
+
+Pending rewards are settled using the user’s previous share balance
+before applying new shares. This ordering ensures correctness across
+all share changes.
+
+---
+
+### Minimal Scope
+
+The engine intentionally avoids features such as governance,
+multi token rewards, or emission strategies. These can be layered
+on top without complicating the core accounting logic.
 ```
