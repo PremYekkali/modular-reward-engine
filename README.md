@@ -143,4 +143,36 @@ all share changes.
 The engine intentionally avoids features such as governance,
 multi token rewards, or emission strategies. These can be layered
 on top without complicating the core accounting logic.
+
+---
+
+## Installation
+
+### Clone the repository:
+
+```bash
+git clone https://github.com/PremYekkali/modular-reward-engine.git
+cd modular-reward-engine
 ```
+
+### Install dependencies:
+```bash
+npm install
+```
+
+### Compile contracts:
+```bash
+npm run compile
+```
+### Local Development
+Run the test suite:
+```bash
+npm run test
+```
+Generate a coverage report:
+```bash
+npm run coverage
+```
+
+This project uses Hardhat for local development and testing.
+---
