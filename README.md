@@ -1,5 +1,9 @@
 # Modular Reward Engine
 
+![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)
+![Hardhat](https://img.shields.io/badge/Built%20With-Hardhat-yellow)
+![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
+
 A minimal and reusable reward accounting and distribution engine for
 Ethereum based protocols.
 
