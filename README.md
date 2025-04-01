@@ -176,3 +176,37 @@ npm run coverage
 
 This project uses Hardhat for local development and testing.
 ---
+
+## Basic Usage
+
+The reward engine is intended to be driven by an external system.
+
+### Notify Rewards
+
+```solidity
+rewardManager.notifyReward(amount);
+```
+This updates global reward accounting. Reward tokens must already be
+transferred to the contract before calling.
+
+---
+
+### Update Shares
+
+```solidity
+rewardManager.onSharesUpdated(user, previousShares, newShares);
+```
+
+This settles pending rewards using the previous share balance and updates accounting.
+
+---
+
+### Claim Rewards
+
+```solidity
+rewardManager.claim(user);
+```
+
+Transfers accrued rewards to the specified user if available.
+
+---
