@@ -217,3 +217,13 @@ Transfers accrued rewards to the specified user if available.
 - Reward tokens must be funded before calling `notifyReward`.
 - Incorrect share reporting can affect reward distribution.
 - Defensive checks exist to guard against inconsistent accounting state.
+
+## Integrator Responsibilities
+
+Integrating protocols are responsible for:
+
+- Calculating user shares correctly
+- Calling `onSharesUpdated` when balances change
+- Funding reward tokens before notifying rewards
+- Monitoring contract balances to avoid payout failures
+
