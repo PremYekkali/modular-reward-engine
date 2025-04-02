@@ -227,3 +227,8 @@ Integrating protocols are responsible for:
 - Funding reward tokens before notifying rewards
 - Monitoring contract balances to avoid payout failures
 
+## Testing Philosophy
+
+Tests focus on correctness of reward accounting and defensive behavior.
+Some branches are validated using harness contracts or controlled state
+manipulation to preserve invariants while achieving full coverage.
