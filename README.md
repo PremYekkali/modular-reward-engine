@@ -210,3 +210,10 @@ rewardManager.claim(user);
 Transfers accrued rewards to the specified user if available.
 
 ---
+
+## Security Considerations
+
+- The reporter address must be trusted to provide accurate share updates.
+- Reward tokens must be funded before calling `notifyReward`.
+- Incorrect share reporting can affect reward distribution.
+- Defensive checks exist to guard against inconsistent accounting state.
