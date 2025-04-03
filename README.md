@@ -261,3 +261,13 @@ The reward engine assumes:
 - Reward tokens are funded before notification
 - Integrators manage access control around reporter permissions
 
+---
+
+## Deployment Notes
+
+The RewardManager constructor requires:
+
+- reporter address
+- reward token address
+
+Deployment scripts are expected to live in the integrating protocol.
