@@ -49,7 +49,6 @@ This repository intentionally does **not** include:
 
 These concerns are expected to be handled by integrating protocols.
 
-
 ---
 
 ## Reward Flow Overview
@@ -175,6 +174,7 @@ npm run coverage
 ```
 
 This project uses Hardhat for local development and testing.
+
 ---
 
 ## Basic Usage
@@ -218,6 +218,8 @@ Transfers accrued rewards to the specified user if available.
 - Incorrect share reporting can affect reward distribution.
 - Defensive checks exist to guard against inconsistent accounting state.
 
+---
+
 ## Integrator Responsibilities
 
 Integrating protocols are responsible for:
@@ -227,11 +229,15 @@ Integrating protocols are responsible for:
 - Funding reward tokens before notifying rewards
 - Monitoring contract balances to avoid payout failures
 
+---
+
 ## Testing Philosophy
 
 Tests focus on correctness of reward accounting and defensive behavior.
 Some branches are validated using harness contracts or controlled state
 manipulation to preserve invariants while achieving full coverage.
+
+---
 
 ## Quick Start Example
 
@@ -245,3 +251,13 @@ Call notifyReward(amount)
 Call onSharesUpdated(user, oldShares, newShares)
 Users call claim(user)
 ````
+---
+
+## Trust Model
+
+The reward engine assumes:
+
+- The reporter provides accurate share updates
+- Reward tokens are funded before notification
+- Integrators manage access control around reporter permissions
+
