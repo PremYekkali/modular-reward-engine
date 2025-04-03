@@ -232,3 +232,16 @@ Integrating protocols are responsible for:
 Tests focus on correctness of reward accounting and defensive behavior.
 Some branches are validated using harness contracts or controlled state
 manipulation to preserve invariants while achieving full coverage.
+
+## Quick Start Example
+
+A minimal integration flow:
+
+```text
+Deploy reward token
+Deploy RewardManager(reporter, token)
+Transfer reward tokens to RewardManager
+Call notifyReward(amount)
+Call onSharesUpdated(user, oldShares, newShares)
+Users call claim(user)
+````
